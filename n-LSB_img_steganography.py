@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 
-from consts import COVER_FILE_PATH, EXTRACTED_IMG_FILE_PATH, MASK_ZERO_VALUES, N_LSB, SECRET_IMAGE_PATH, \
-    SECRET_TEXT_FILE_PATH, STEGO_IMAGE_PATH
+from consts import *
 from utils import binary_value, read_n_bits
 
 
@@ -132,11 +131,17 @@ def extract_text():
 
 
 def main():
-    embed_text()
-    extract_text()
+    if HIDE_TEXT_FILE:
+        embed_text()
 
-    embed_img()
-    extract_img()
+    if UNHIDE_TEXT_FILE:
+        extract_text()
+
+    if HIDE_IMAGE_FILE:
+        embed_img()
+
+    if UNHIDE_IMAGE_FILE:
+        extract_img()
 
 
 if __name__=="__main__":
