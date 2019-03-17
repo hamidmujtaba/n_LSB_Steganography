@@ -1,14 +1,15 @@
 import cv2
 import numpy as np
 
-from consts import MASK_ZERO_VALUES, N_LSB
+from consts import COVER_FILE_PATH, EXTRACTED_IMG_FILE_PATH, MASK_ZERO_VALUES, N_LSB, SECRET_IMAGE_PATH, \
+    SECRET_TEXT_FILE_PATH, STEGO_IMAGE_PATH
 from utils import binary_value, read_n_bits
 
 
 # TODO #1: Make this application run through terminal with parameters of cover and secret data
 
 def embed_text():
-    with open('sample_secret_msg.txt', 'rb') as secret_file:
+    with open(SECRET_TEXT_FILE_PATH, 'rb') as secret_file:
         secret = secret_file.read()
 
     assert len(secret) > 0, "Error: Message length is zero!"
@@ -22,7 +23,7 @@ def embed_text():
     secret_bitstream = total_secret_bytes + secret_msg_bitstream
     n_bits_split_secret_bitstream = [secret_bitstream[i:i+N_LSB] for i in range(0, len(secret_bitstream), N_LSB)]
 
-    cover_img = cv2.imread('sample_cover.png', cv2.IMREAD_GRAYSCALE)
+    cover_img = cv2.imread(COVER_FILE_PATH, cv2.IMREAD_GRAYSCALE)
     cover_width, cover_height = cover_img.shape
     assert cover_width >= 480, "Error: Cover image width less than minimum (480)"
     assert cover_height >= 480, "Error: Cover image height less than minimum (480)"
@@ -44,11 +45,11 @@ def embed_text():
         if embedding_complete:
             break
 
-    cv2.imwrite("stego_img.png", cover_img)
+    cv2.imwrite(STEGO_IMAGE_PATH, cover_img)
 
 
 def embed_img():
-    secret_img = cv2.imread('sample_secret_img.jpg', cv2.IMREAD_GRAYSCALE)
+    secret_img = cv2.imread(SECRET_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
     width, height = secret_img.shape
 
     width = binary_value(width, 16)
@@ -64,7 +65,7 @@ def embed_img():
 
     n_bits_split_secret_bitstream = [secret_bitstream[i:i+N_LSB] for i in range(0, len(secret_bitstream), N_LSB)]
 
-    cover_img = cv2.imread('sample_cover.png', cv2.IMREAD_GRAYSCALE)
+    cover_img = cv2.imread(COVER_FILE_PATH, cv2.IMREAD_GRAYSCALE)
     cover_width, cover_height = cover_img.shape
     assert cover_width >= 480, "Error: Cover image width less than minimum (480)"
     assert cover_height >= 480, "Error: Cover image height less than minimum (480)"
@@ -86,11 +87,11 @@ def embed_img():
         if embedding_complete:
             break
 
-    cv2.imwrite("stego_img.png", cover_img)
+    cv2.imwrite(STEGO_IMAGE_PATH, cover_img)
 
 
 def extract_img():
-    stego_img = cv2.imread('stego_img.png', cv2.IMREAD_GRAYSCALE)
+    stego_img = cv2.imread(STEGO_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 
     # Read first 2 bytes : Size of text in bytes
     img_shape = read_n_bits(stego_img, n=32)
@@ -109,11 +110,11 @@ def extract_img():
 
     secret_img = np.array([byte_split_secret_bitstream[i:i + height] for i in xrange(0, len(byte_split_secret_bitstream), height)])
 
-    cv2.imwrite("extracted_img.png", secret_img)
+    cv2.imwrite(EXTRACTED_IMG_FILE_PATH, secret_img)
 
 
 def extract_text():
-    stego_img = cv2.imread('stego_img.png', cv2.IMREAD_GRAYSCALE)
+    stego_img = cv2.imread(STEGO_IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 
     # Read first 2 bytes : Size of text in bytes
     no_of_secret_bytes = int(read_n_bits(stego_img, n=2*8), 2)
